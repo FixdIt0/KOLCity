@@ -74,15 +74,18 @@ export function getSkyscraperType(wallet: PlacedWallet): SkyscraperType {
   return "spire";
 }
 
-// Realistic urban building colors — concrete, glass, steel
-// KOL type only affects window glow (in shader), not the body
+// Realistic urban building colors — varied materials per KOL type
+// Glass, concrete, steel — each type gets a distinct material feel
 const COLOR_HEIGHT_MAX = 150 * FLOOR_HEIGHT;
 
 export function getBuildingColor(height: number, kolType?: string | null): string {
   const t = Math.min(1, height / COLOR_HEIGHT_MAX);
-  // Short = warm concrete, tall = cool glass/steel
-  const r = Math.floor(95 - t * 30);
-  const g = Math.floor(92 - t * 25);
-  const b = Math.floor(100 - t * 10);
-  return `rgb(${r},${g},${b})`;
+  switch (kolType) {
+    case "whale":   return `rgb(${70 + Math.floor(t * 30)},${85 + Math.floor(t * 40)},${130 + Math.floor(t * 50)})`;  // blue glass
+    case "diamond": return `rgb(${60 + Math.floor(t * 20)},${110 + Math.floor(t * 40)},${120 + Math.floor(t * 30)})`;  // teal glass
+    case "degen":   return `rgb(${130 + Math.floor(t * 30)},${100 + Math.floor(t * 20)},${70 + Math.floor(t * 10)})`;  // amber concrete
+    case "dumper":  return `rgb(${100 + Math.floor(t * 20)},${80 + Math.floor(t * 15)},${75 + Math.floor(t * 10)})`;   // brown concrete
+    case "rugger":  return `rgb(${60 + Math.floor(t * 15)},${55 + Math.floor(t * 10)},${65 + Math.floor(t * 15)})`;    // dark charcoal
+    default:        return `rgb(${90 + Math.floor(t * 30)},${95 + Math.floor(t * 35)},${110 + Math.floor(t * 40)})`;   // steel gray-blue
+  }
 }

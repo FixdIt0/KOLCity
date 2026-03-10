@@ -78,10 +78,16 @@ export function createBuildingMaterial(
     // Realistic building body — concrete/glass look
     vec3 baseColor = vBuildingColor;
     vec3 sunsetTint = mix(baseColor, baseColor * vec3(1.3, 0.9, 0.7), sunsetFactor * 0.5);
-    float nightDim = mix(1.0, 0.35, nightFactor);
+    float nightDim = mix(1.0, 0.55, nightFactor);
 
-    diffuseColor.rgb = sunsetTint * 0.25 * nightDim;
-    totalEmissiveRadiance += sunsetTint * 0.75 * nightDim;
+    // Height gradient — darker at base, lighter at top
+    float heightGrad = smoothstep(-0.5, 0.5, vFaceUV.y) * 0.3 + 0.7;
+
+    diffuseColor.rgb = sunsetTint * 0.35 * nightDim * heightGrad;
+    totalEmissiveRadiance += sunsetTint * 0.65 * nightDim * heightGrad;
+
+    // Ambient city glow on building faces at night
+    totalEmissiveRadiance += vec3(0.02, 0.015, 0.04) * nightFactor;
 
     // Hover glow
     totalEmissiveRadiance += vec3(0.04, 0.04, 0.06) * vHighlight;
@@ -125,7 +131,7 @@ export function createBuildingMaterial(
 
             if (isLit && nightFactor > 0.0) {
               // Lit window — neon colored glow at night
-              totalEmissiveRadiance += neonColor * nightFactor * 0.9 * pulse;
+              totalEmissiveRadiance += neonColor * nightFactor * 2.5 * pulse;
             } else if (!isLit && nightFactor > 0.0) {
               // Dark window pane
               totalEmissiveRadiance *= 0.4;
@@ -141,16 +147,26 @@ export function createBuildingMaterial(
 
       // Subtle vertical edge darkening (architectural detail)
       float edgeDist = min(vFaceUV.x, 1.0 - vFaceUV.x);
-      float edgeDark = smoothstep(0.0, 0.04, edgeDist);
-      totalEmissiveRadiance *= mix(0.6, 1.0, edgeDark);
-      diffuseColor.rgb *= mix(0.5, 1.0, edgeDark);
+      float edgeDark = smoothstep(0.0, 0.06, edgeDist);
+      totalEmissiveRadiance *= mix(0.4, 1.0, edgeDark);
+      diffuseColor.rgb *= mix(0.3, 1.0, edgeDark);
+
+      // Horizontal floor lines — subtle concrete seams
+      float floorLine = 1.0 - 0.15 * (1.0 - smoothstep(0.0, 0.03, fract(vFaceUV.y * vFloors)));
+      totalEmissiveRadiance *= floorLine;
+      diffuseColor.rgb *= floorLine;
+    }
+
+    // Rooftop accent glow — thin neon strip at top
+    if (abs(vModelNormal.y) > 0.5 && vModelNormal.y > 0.0) {
+      totalEmissiveRadiance += neonColor * 0.4 * nightFactor * pulse;
     }
   `);
 
   const uniforms = THREE.UniformsUtils.clone(std.uniforms);
   uniforms.uTime = timeUniform;
-  uniforms.roughness.value = 0.82;
-  uniforms.metalness.value = 0.08;
+  uniforms.roughness.value = 0.55;
+  uniforms.metalness.value = 0.25;
 
   const material = new THREE.ShaderMaterial({
     uniforms, vertexShader, fragmentShader,
