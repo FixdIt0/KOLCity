@@ -17,6 +17,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "KOL City",
   description: "A 3D city where crypto influencers become buildings",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({

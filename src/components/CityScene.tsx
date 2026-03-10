@@ -136,14 +136,9 @@ export default function CityScene() {
           {/* Left: logo + name + CA */}
           <div className="pointer-events-auto flex flex-col gap-2 shrink-0" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}>
             <div className="flex items-center gap-2.5">
-              {/* Placeholder logo — user will replace */}
-              <div style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(15,23,42,0.7)", border: "1px solid #334155", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 14 }}>🏙️</span>
-              </div>
+              <img src="/logo-short.png" alt="KOL City" style={{ width: 28, height: 28, borderRadius: 4 }} />
               <div>
-                <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em", color: "#ffffff" }}>
-                  KOL City
-                </span>
+                <img src="/logo-long.jpeg" alt="KOL City" style={{ height: 18, borderRadius: 2 }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
                   <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#cbd5e1", letterSpacing: "0.01em" }}>
                     CA: TBD
