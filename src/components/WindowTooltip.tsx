@@ -133,31 +133,10 @@ function BuildingTooltip({
   );
 
   useEffect(() => {
-    if (profileCache.has(address)) {
-      setProfile(profileCache.get(address)!);
-    } else if (!pendingProfiles.has(address)) {
-      pendingProfiles.add(address);
-      import("@/lib/supabase").then(({ createClient }) => {
-        const supabase = createClient();
-        Promise.resolve(
-          supabase
-            .from("profiles")
-            .select("x_username, x_avatar_url")
-            .eq("wallet_address", address)
-            .single()
-        )
-          .then(({ data }) => {
-            profileCache.set(address, data ?? null);
-            pendingProfiles.delete(address);
-            setProfile(data ?? null);
-          })
-          .catch(() => {
-            profileCache.set(address, null);
-            pendingProfiles.delete(address);
-            setProfile(null);
-          });
-      });
+    if (!profileCache.has(address)) {
+      profileCache.set(address, null);
     }
+    setProfile(profileCache.get(address)!);
   }, [address]);
 
   // Identity is pre-loaded from the wallets bulk response — no fetch needed
