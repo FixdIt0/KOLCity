@@ -91,6 +91,7 @@ export default function CityScene() {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [lbOpen, setLbOpen] = useState(true);
   const [lbPage, setLbPage] = useState(0);
+  const [lbSort, setLbSort] = useState<"profit" | "volume">("profit");
   const timeRef = useRef(0.5);
   const autoModeRef = useRef(false);
 
@@ -123,7 +124,13 @@ export default function CityScene() {
     return KOL_DATA.filter(k => k.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6);
   }, [searchQuery]);
 
-  const lbKols = useMemo(() => KOL_DATA.slice(lbPage * LB_PAGE, (lbPage + 1) * LB_PAGE), [lbPage]);
+  const sortedKols = useMemo(() => {
+    const sorted = [...KOL_DATA].sort((a, b) =>
+      lbSort === "profit" ? b.pnlSol - a.pnlSol : b.volume - a.volume
+    );
+    return sorted;
+  }, [lbSort]);
+  const lbKols = useMemo(() => sortedKols.slice(lbPage * LB_PAGE, (lbPage + 1) * LB_PAGE), [lbPage, sortedKols]);
   const lbMaxPage = Math.ceil(KOL_DATA.length / LB_PAGE) - 1;
 
   return (
@@ -133,10 +140,13 @@ export default function CityScene() {
       <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
         <div className="flex items-start justify-between px-4 pt-3 pb-2 gap-4">
 
-          {/* Left: logo + name + CA */}
-          <div className="pointer-events-auto flex flex-col gap-2 shrink-0" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}>
+          {/* Left: logo + CA + controls */}
+          <div className="pointer-events-auto flex flex-col gap-2 shrink-0" style={{
+            background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10,
+            padding: "10px 14px",
+          }}>
             <div className="flex items-center gap-2.5">
-              <img src="/logo-long.jpeg" alt="KOL City" style={{ height: 32, borderRadius: 3 }} />
+              <img src="/logo.svg" alt="KOL City" style={{ height: 36 }} />
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
                   <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#cbd5e1", letterSpacing: "0.01em" }}>
@@ -263,9 +273,20 @@ export default function CityScene() {
             display: "flex", justifyContent: "space-between", alignItems: "center",
           }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", letterSpacing: "-0.01em" }}>Leaderboard</span>
-            <span style={{ fontSize: 10, color: "#475569", fontFamily: "var(--font-mono)", fontWeight: 500 }}>
-              {lbPage * LB_PAGE + 1}-{Math.min((lbPage + 1) * LB_PAGE, KOL_DATA.length)}
-            </span>
+            <div style={{ display: "flex", gap: 4 }}>
+              {(["profit", "volume"] as const).map(s => (
+                <button key={s} onClick={() => { setLbSort(s); setLbPage(0); }}
+                  style={{
+                    fontSize: 10, fontWeight: 600, fontFamily: "var(--font-jakarta)",
+                    padding: "2px 8px", borderRadius: 4, cursor: "pointer",
+                    background: lbSort === s ? "#1e293b" : "transparent",
+                    color: lbSort === s ? "#e2e8f0" : "#475569",
+                    border: `1px solid ${lbSort === s ? "#334155" : "transparent"}`,
+                  }}>
+                  {s === "profit" ? "PNL" : "Vol"}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* List */}
