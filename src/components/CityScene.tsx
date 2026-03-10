@@ -407,7 +407,7 @@ export default function CityScene() {
 
       {/* 3D CANVAS */}
       <Canvas
-        camera={{ position: [0, 80, 120], fov: 50, near: 1, far: 2000 }}
+        camera={{ position: [0, 60, 90], fov: 50, near: 1, far: 2000 }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.5 }}
         style={{ position: "absolute", inset: 0 }}
       >
@@ -420,7 +420,7 @@ export default function CityScene() {
         <Rain active={isRaining} />
         <BuildingParticles wallets={wallets} />
         {selectedPosition && <SelectionBeam position={selectedPosition} buildingHeight={10} />}
-        <OrbitControls makeDefault minDistance={10} maxDistance={500} maxPolarAngle={Math.PI / 2.1}
+        <OrbitControls makeDefault target={[0, 0, 0]} minDistance={10} maxDistance={500} maxPolarAngle={Math.PI / 2.1}
           enableDamping dampingFactor={0.05} panSpeed={1.5} screenSpacePanning={false} />
         <EffectComposer>
           <Bloom intensity={1.8} luminanceThreshold={0.2} luminanceSmoothing={0.9} mipmapBlur radius={0.8} />
