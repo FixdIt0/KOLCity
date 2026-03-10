@@ -33,7 +33,7 @@ export default function SpeechBubbles() {
   return (
     <group>
       {bubbles.map((b, i) => (
-        <Html key={i} position={b.pos} center distanceFactor={120} style={{ pointerEvents: "none" }}>
+        <Html key={i} position={b.pos} center distanceFactor={120} zIndexRange={[0, 0]} style={{ pointerEvents: "none" }}>
           <div style={{
             background: "rgba(0,0,0,0.75)", border: `1px solid ${b.color}40`,
             borderRadius: 8, padding: "3px 8px", whiteSpace: "nowrap",

@@ -45,7 +45,7 @@ export default function StreetSigns() {
             <meshStandardMaterial color="#444" metalness={0.8} roughness={0.3} />
           </mesh>
           {/* Sign label */}
-          <Html center distanceFactor={100} style={{ pointerEvents: "none" }}>
+          <Html center distanceFactor={100} zIndexRange={[0, 0]} style={{ pointerEvents: "none" }}>
             <div style={{
               background: "#1a5c1a", border: "1px solid #2a8a2a", borderRadius: 2,
               padding: "2px 6px", whiteSpace: "nowrap",

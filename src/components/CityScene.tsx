@@ -270,7 +270,7 @@ export default function CityScene() {
 
       {/* LEADERBOARD PANEL */}
       {lbOpen && (
-        <div className="absolute z-20" style={{
+        <div className="absolute z-30" style={{
           top: 52, right: panelKol ? 340 : 16, width: 280,
           background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10,
           maxHeight: "calc(100vh - 120px)", display: "flex", flexDirection: "column",
@@ -424,7 +424,7 @@ export default function CityScene() {
         <SceneLighting timeRef={timeRef} autoModeRef={autoModeRef} />
         <CityGrid wallets={wallets} timeRef={timeRef} onSelectWallet={handleSelectWallet} selectedAddress={selectedWallet?.address} />
         <InstancedCars swapQueueRef={swapQueueRef} wallets={wallets} timeRef={timeRef} />
-        <FloatingLabels wallets={wallets} count={30} />
+        <FloatingLabels wallets={wallets} />
         <SpeechBubbles />
         <StreetSigns />
         <Rain active={isRaining} />
