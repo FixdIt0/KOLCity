@@ -51,29 +51,8 @@ function kolsToWallets(kols: KOL[]): PlacedWallet[] {
   });
 }
 
-const TIME_PRESETS = [
-  { id: "cycle", label: "Auto", icon: "\u27F3" },
-  { id: "sunrise", label: "Sunrise", icon: "\uD83C\uDF05", time: 0.0 },
-  { id: "day", label: "Day", icon: "\u2600\uFE0F", time: 0.25 },
-  { id: "sunset", label: "Sunset", icon: "\uD83C\uDF07", time: 0.5 },
-  { id: "night", label: "Night", icon: "\uD83C\uDF19", time: 0.75 },
-] as const;
-
-const TYPE_COLORS: Record<KolType, string> = {
-  whale: "#3b82f6",
-  dumper: "#f97316",
-  diamond: "#22c55e",
-  degen: "#a855f7",
-  rugger: "#ef4444",
-};
-const TYPE_LABEL: Record<KolType, string> = {
-  whale: "Whale",
-  dumper: "Dumper",
-  diamond: "Diamond",
-  degen: "Degen",
-  rugger: "Rugger",
-};
-
+const TYPE_COLORS: Record<KolType, string> = { whale: "#3b82f6", dumper: "#f97316", diamond: "#22c55e", degen: "#a855f7", rugger: "#ef4444" };
+const TYPE_LABEL: Record<KolType, string> = { whale: "Whale", dumper: "Dumper", diamond: "Diamond", degen: "Degen", rugger: "Rugger" };
 const LB_PAGE = 20;
 
 function formatPnl(val: number): string {
@@ -108,12 +87,11 @@ export default function CityScene() {
   const [selectedPosition, setSelectedPosition] = useState<[number, number, number] | null>(null);
   const [panelKol, setPanelKol] = useState<KOL | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activePreset, setActivePreset] = useState("night");
   const [isRaining, setIsRaining] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [lbOpen, setLbOpen] = useState(true);
   const [lbPage, setLbPage] = useState(0);
-  const timeRef = useRef(0.75);
+  const timeRef = useRef(0.5);
   const autoModeRef = useRef(false);
 
   const wallets = useMemo(() => kolsToWallets(KOL_DATA), []);
@@ -140,12 +118,6 @@ export default function CityScene() {
     }
   }, [wallets, handleSelectWallet]);
 
-  const handleTimePreset = useCallback((id: string, time?: number) => {
-    if (id === "cycle") autoModeRef.current = true;
-    else if (time !== undefined) { timeRef.current = time; autoModeRef.current = false; }
-    setActivePreset(id);
-  }, []);
-
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.length < 2) return [];
     return KOL_DATA.filter(k => k.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6);
@@ -161,23 +133,23 @@ export default function CityScene() {
       <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
         <div className="flex items-start justify-between px-4 pt-3 pb-2 gap-4">
 
-          {/* Left: logo + name + CA + controls */}
-          <div className="pointer-events-auto flex flex-col gap-2 shrink-0">
+          {/* Left: logo + name + CA */}
+          <div className="pointer-events-auto flex flex-col gap-2 shrink-0" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}>
             <div className="flex items-center gap-2.5">
               {/* Placeholder logo — user will replace */}
-              <div style={{ width: 24, height: 24, borderRadius: 6, background: "#1e293b", border: "1px solid #334155", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(15,23,42,0.7)", border: "1px solid #334155", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: 14 }}>🏙️</span>
               </div>
               <div>
-                <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em", color: "#e2e8f0" }}>
+                <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em", color: "#ffffff" }}>
                   KOL City
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
-                  <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#475569", letterSpacing: "0.01em" }}>
+                  <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#cbd5e1", letterSpacing: "0.01em" }}>
                     CA: TBD
                   </span>
                   <button onClick={() => navigator.clipboard.writeText("TBD").catch(() => {})}
-                    style={{ background: "none", border: "none", color: "#334155", cursor: "pointer", padding: 0, lineHeight: 1 }}>
+                    style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: 0, lineHeight: 1 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                     </svg>
@@ -186,38 +158,25 @@ export default function CityScene() {
               </div>
               <span style={{
                 fontSize: 10, fontFamily: "var(--font-mono)", fontWeight: 500,
-                color: "#64748b", background: "#1e293b", padding: "2px 6px",
+                color: "#e2e8f0", background: "rgba(15,23,42,0.7)", padding: "2px 6px",
                 borderRadius: 4, letterSpacing: "0.02em",
               }}>
                 {KOL_DATA.length}
               </span>
             </div>
             <div className="flex items-center gap-1">
-              {TIME_PRESETS.map(p => (
-                <button key={p.id} onClick={() => handleTimePreset(p.id, "time" in p ? p.time : undefined)}
-                  style={{
-                    background: activePreset === p.id ? "#1e293b" : "transparent",
-                    color: activePreset === p.id ? "#e2e8f0" : "#475569",
-                    border: `1px solid ${activePreset === p.id ? "#334155" : "transparent"}`,
-                    borderRadius: 6, padding: "3px 8px", fontSize: 11, cursor: "pointer",
-                    transition: "all 150ms ease", fontFamily: "var(--font-jakarta)",
-                  }}>
-                  {p.icon}
-                </button>
-              ))}
-              <div style={{ width: 1, height: 16, background: "#1e293b", margin: "0 4px" }} />
               <button onClick={() => setIsRaining(!isRaining)}
                 style={{
-                  background: isRaining ? "#0c2d6b" : "transparent",
-                  color: isRaining ? "#3b82f6" : "#475569",
-                  border: `1px solid ${isRaining ? "#1e3a5f" : "transparent"}`,
+                  background: isRaining ? "rgba(12,45,107,0.8)" : "rgba(15,23,42,0.6)",
+                  color: isRaining ? "#3b82f6" : "#cbd5e1",
+                  border: `1px solid ${isRaining ? "#1e3a5f" : "rgba(51,65,85,0.6)"}`,
                   borderRadius: 6, padding: "3px 8px", fontSize: 11, cursor: "pointer",
                 }}>{"\uD83C\uDF27"}</button>
               <button onClick={() => setSoundEnabled(!soundEnabled)}
                 style={{
-                  background: soundEnabled ? "#1e293b" : "transparent",
-                  color: soundEnabled ? "#e2e8f0" : "#475569",
-                  border: `1px solid ${soundEnabled ? "#334155" : "transparent"}`,
+                  background: soundEnabled ? "rgba(30,41,59,0.8)" : "rgba(15,23,42,0.6)",
+                  color: soundEnabled ? "#e2e8f0" : "#cbd5e1",
+                  border: `1px solid ${soundEnabled ? "rgba(51,65,85,0.6)" : "rgba(51,65,85,0.6)"}`,
                   borderRadius: 6, padding: "3px 8px", fontSize: 11, cursor: "pointer",
                 }}>{soundEnabled ? "\uD83D\uDD0A" : "\uD83D\uDD07"}</button>
             </div>
@@ -293,16 +252,6 @@ export default function CityScene() {
             })}
           </div>
         )}
-      </div>
-
-      {/* LEGEND */}
-      <div className="absolute z-20 select-none pointer-events-none" style={{ top: 72, left: 16, display: "flex", gap: 10 }}>
-        {(["whale", "diamond", "degen", "dumper", "rugger"] as KolType[]).map(t => (
-          <span key={t} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#475569", fontWeight: 500, fontFamily: "var(--font-jakarta)" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: TYPE_COLORS[t] }} />
-            {TYPE_LABEL[t]}
-          </span>
-        ))}
       </div>
 
       {/* LEADERBOARD PANEL */}

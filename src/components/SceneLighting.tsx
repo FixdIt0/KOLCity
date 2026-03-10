@@ -65,7 +65,7 @@ export default function SceneLighting({ timeRef, autoModeRef }: SceneLightingPro
 
   return (
     <>
-      <Sky ref={skyRef} distance={450000} sunPosition={[0, -200, 20]}
+      <Sky ref={skyRef} distance={450000} sunPosition={[-200, 0, 20]}
         turbidity={2} rayleigh={0.5} mieCoefficient={0.0005} mieDirectionalG={0.3} />
       <ambientLight ref={ambientRef} intensity={0.15} />
       <directionalLight ref={sunRef} position={[50, 0, 20]} intensity={0} />
