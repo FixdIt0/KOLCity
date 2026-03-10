@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Html } from "@react-three/drei";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
 import { PlacedWallet } from "@/types/wallet";
 import { getBuildingDimensions, getWalletWorldPosition } from "@/lib/building-math";
 import { KOL_DATA, getKolType } from "@/data/kols";
@@ -12,10 +14,22 @@ const TYPE_COLOR: Record<KolType, string> = {
   degen: "#aa44ff", rugger: "#ff2244",
 };
 
-interface Props { wallets: PlacedWallet[]; }
+interface LabelData {
+  wallet: string;
+  name: string;
+  rank: number;
+  pos: [number, number, number];
+  color: string;
+}
 
-export default function FloatingLabels({ wallets }: Props) {
-  const labels = useMemo(() => {
+const MAX_LABELS = 40;
+const MAX_DIST = 150;
+const frustum = new THREE.Frustum();
+const projMatrix = new THREE.Matrix4();
+const tmpVec = new THREE.Vector3();
+
+export default function FloatingLabels({ wallets }: { wallets: PlacedWallet[] }) {
+  const allLabels = useMemo<LabelData[]>(() => {
     return KOL_DATA.map(kol => {
       const placed = wallets.find(w => w.address === kol.wallet);
       if (!placed) return null;
@@ -23,19 +37,52 @@ export default function FloatingLabels({ wallets }: Props) {
       const pos = getWalletWorldPosition(placed, dims);
       const type = getKolType(kol);
       return {
-        kol,
+        wallet: kol.wallet,
+        name: kol.name,
+        rank: kol.rank,
         pos: [pos[0], pos[1] + dims.height / 2 + 2, pos[2]] as [number, number, number],
-        type,
         color: TYPE_COLOR[type],
       };
-    }).filter(Boolean) as { kol: typeof KOL_DATA[0]; pos: [number, number, number]; type: KolType; color: string }[];
+    }).filter(Boolean) as LabelData[];
   }, [wallets]);
+
+  const [visible, setVisible] = useState<LabelData[]>([]);
+  const frameCount = useRef(0);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    frameCount.current++;
+    if (frameCount.current % 30 !== 0) return;
+
+    projMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    frustum.setFromProjectionMatrix(projMatrix);
+
+    const camPos = camera.position;
+    const candidates: { label: LabelData; dist: number }[] = [];
+
+    for (let i = 0; i < allLabels.length; i++) {
+      const l = allLabels[i];
+      tmpVec.set(l.pos[0], l.pos[1], l.pos[2]);
+      const dist = camPos.distanceTo(tmpVec);
+      if (dist > MAX_DIST) continue;
+      if (!frustum.containsPoint(tmpVec)) continue;
+      candidates.push({ label: l, dist });
+    }
+
+    candidates.sort((a, b) => a.dist - b.dist);
+    const next = candidates.slice(0, MAX_LABELS).map(c => c.label);
+
+    setVisible(prev => {
+      if (prev.length === next.length && prev.every((v, i) => v.wallet === next[i].wallet)) return prev;
+      return next;
+    });
+  });
 
   return (
     <group>
-      {labels.map(l => (
-        <Html key={l.kol.wallet} position={l.pos} center
-          distanceFactor={100} occlude="blending"
+      {visible.map(l => (
+        <Html key={l.wallet} position={l.pos} center
+          distanceFactor={80}
           zIndexRange={[0, 0]}
           style={{ pointerEvents: "none", userSelect: "none" }}>
           <div style={{
@@ -43,10 +90,10 @@ export default function FloatingLabels({ wallets }: Props) {
             borderRadius: 4, padding: "2px 6px", whiteSpace: "nowrap",
           }}>
             <span style={{ color: l.color, fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>
-              {l.kol.name}
+              {l.name}
             </span>
             <span style={{ color: `${l.color}80`, fontSize: 8, marginLeft: 4 }}>
-              #{l.kol.rank}
+              #{l.rank}
             </span>
           </div>
         </Html>

@@ -97,6 +97,7 @@ export default function CityScene() {
   const [selectedPosition, setSelectedPosition] = useState<[number, number, number] | null>(null);
   const [panelKol, setPanelKol] = useState<KOL | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isRaining, setIsRaining] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lbOpen, setLbOpen] = useState(!isMobile);
@@ -233,65 +234,138 @@ export default function CityScene() {
       </div>
 
       {/* SEARCH */}
-      <div className="absolute z-40 pointer-events-auto" style={{
-        top: isMobile ? 8 : 12,
-        left: "50%", transform: "translateX(-50%)",
-        width: isMobile ? "min(200px, 40vw)" : 260,
-      }}>
-        <div style={{ position: "relative" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"
-            style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-          </svg>
-          <input
-            type="text" placeholder="Search KOLs..."
-            value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === "Enter" && searchResults.length > 0) { flyToKol(searchResults[0]); setSearchQuery(""); }
-              if (e.key === "Escape") setSearchQuery("");
-            }}
-            style={{
-              width: "100%", padding: isMobile ? "5px 8px 5px 30px" : "7px 10px 7px 32px",
-              fontSize: isMobile ? 11 : 12,
-              fontFamily: "var(--font-jakarta)", fontWeight: 500,
-              background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
-              color: "#e2e8f0", outline: "none",
-            }}
-          />
-        </div>
-        {searchResults.length > 0 && (
-          <div style={{
-            position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4,
-            background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
-            overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-            width: isMobile ? "max(200px, 70vw)" : undefined,
-          }}>
-            {searchResults.map(kol => {
-              const t = getKolType(kol);
-              return (
-                <button key={kol.wallet} onClick={() => { flyToKol(kol); setSearchQuery(""); }}
-                  className="lb-row"
-                  style={{
-                    display: "flex", alignItems: "center", gap: 8,
-                    width: "100%", padding: "7px 10px", fontSize: 12, cursor: "pointer",
-                    background: "transparent", border: "none", color: "#e2e8f0", textAlign: "left",
+      {isMobile ? (
+        /* Mobile: icon button that expands to full-width overlay */
+        <>
+          {!searchOpen && (
+            <button className="absolute z-40 pointer-events-auto"
+              onClick={() => setSearchOpen(true)}
+              style={{
+                top: 10, left: "50%", transform: "translateX(-50%)",
+                background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
+                width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer",
+              }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+            </button>
+          )}
+          {searchOpen && (
+            <div className="absolute inset-0 z-50 pointer-events-auto" style={{ background: "rgba(0,0,0,0.6)" }}
+              onClick={e => { if (e.target === e.currentTarget) { setSearchOpen(false); setSearchQuery(""); } }}>
+              <div style={{ padding: "10px 12px" }}>
+                <div style={{ position: "relative" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"
+                    style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
+                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input
+                    autoFocus
+                    type="text" placeholder="Search KOLs..."
+                    value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && searchResults.length > 0) { flyToKol(searchResults[0]); setSearchQuery(""); setSearchOpen(false); }
+                      if (e.key === "Escape") { setSearchQuery(""); setSearchOpen(false); }
+                    }}
+                    style={{
+                      width: "100%", padding: "10px 10px 10px 32px", fontSize: 14,
+                      fontFamily: "var(--font-jakarta)", fontWeight: 500,
+                      background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10,
+                      color: "#e2e8f0", outline: "none",
+                    }}
+                  />
+                </div>
+                {searchResults.length > 0 && (
+                  <div style={{
+                    marginTop: 6, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10,
+                    overflow: "hidden",
                   }}>
-                  <img src={kol.pfp} alt="" style={{
-                    width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                    border: `1.5px solid ${TYPE_COLORS[t]}`,
-                  }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
-                    {kol.name}
-                  </span>
-                  <span style={{ display: "flex", alignItems: "center", gap: 3, fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: kol.pnlSol >= 0 ? "var(--kol-green)" : "var(--kol-red)" }}>
-                    {formatPnl(kol.pnlSol)} <SolIcon size={10} />
-                  </span>
-                </button>
-              );
-            })}
+                    {searchResults.map(kol => {
+                      const t = getKolType(kol);
+                      return (
+                        <button key={kol.wallet} onClick={() => { flyToKol(kol); setSearchQuery(""); setSearchOpen(false); }}
+                          className="lb-row"
+                          style={{
+                            display: "flex", alignItems: "center", gap: 8,
+                            width: "100%", padding: "10px 12px", fontSize: 13, cursor: "pointer",
+                            background: "transparent", border: "none", color: "#e2e8f0", textAlign: "left",
+                          }}>
+                          <img src={kol.pfp} alt="" style={{
+                            width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
+                            border: `1.5px solid ${TYPE_COLORS[t]}`,
+                          }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
+                            {kol.name}
+                          </span>
+                          <span style={{ display: "flex", alignItems: "center", gap: 3, fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: kol.pnlSol >= 0 ? "var(--kol-green)" : "var(--kol-red)" }}>
+                            {formatPnl(kol.pnlSol)} <SolIcon size={10} />
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        /* Desktop: always-visible centered search */
+        <div className="absolute z-40 pointer-events-auto" style={{ top: 12, left: "50%", transform: "translateX(-50%)", width: 260 }}>
+          <div style={{ position: "relative" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"
+              style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="text" placeholder="Search KOLs..."
+              value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && searchResults.length > 0) { flyToKol(searchResults[0]); setSearchQuery(""); }
+                if (e.key === "Escape") setSearchQuery("");
+              }}
+              style={{
+                width: "100%", padding: "7px 10px 7px 32px", fontSize: 12,
+                fontFamily: "var(--font-jakarta)", fontWeight: 500,
+                background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
+                color: "#e2e8f0", outline: "none",
+              }}
+            />
           </div>
-        )}
-      </div>
+          {searchResults.length > 0 && (
+            <div style={{
+              position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4,
+              background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8,
+              overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            }}>
+              {searchResults.map(kol => {
+                const t = getKolType(kol);
+                return (
+                  <button key={kol.wallet} onClick={() => { flyToKol(kol); setSearchQuery(""); }}
+                    className="lb-row"
+                    style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      width: "100%", padding: "7px 10px", fontSize: 12, cursor: "pointer",
+                      background: "transparent", border: "none", color: "#e2e8f0", textAlign: "left",
+                    }}>
+                    <img src={kol.pfp} alt="" style={{
+                      width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                      border: `1.5px solid ${TYPE_COLORS[t]}`,
+                    }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
+                      {kol.name}
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: kol.pnlSol >= 0 ? "var(--kol-green)" : "var(--kol-red)" }}>
+                      {formatPnl(kol.pnlSol)} <SolIcon size={10} />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* LEADERBOARD PANEL */}
       {lbOpen && (
