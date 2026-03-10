@@ -41,6 +41,15 @@
   animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Mobile bottom sheet slide */
+@keyframes slideInBottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.slide-in-bottom {
+  animation: slideInBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Leaderboard row hover */
 .lb-row {
   transition: background 120ms ease, border-color 120ms ease;
