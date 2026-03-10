@@ -18,6 +18,7 @@ interface LabelData {
   wallet: string;
   name: string;
   rank: number;
+  height: number;
   pos: [number, number, number];
   color: string;
 }
@@ -40,6 +41,7 @@ export default function FloatingLabels({ wallets }: { wallets: PlacedWallet[] })
         wallet: kol.wallet,
         name: kol.name,
         rank: kol.rank,
+        height: dims.height,
         pos: [pos[0], pos[1] + dims.height / 2 + 2, pos[2]] as [number, number, number],
         color: TYPE_COLOR[type],
       };
@@ -69,7 +71,8 @@ export default function FloatingLabels({ wallets }: { wallets: PlacedWallet[] })
       candidates.push({ label: l, dist });
     }
 
-    candidates.sort((a, b) => a.dist - b.dist);
+    // Score: lower = higher priority. Tall buildings get a big distance discount.
+    candidates.sort((a, b) => (a.dist - a.label.height * 2) - (b.dist - b.label.height * 2));
     const next = candidates.slice(0, MAX_LABELS).map(c => c.label);
 
     setVisible(prev => {
