@@ -1,1 +1,88 @@
 @import "tailwindcss";
+
+:root {
+  --font-jakarta: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --kol-green: #22c55e;
+  --kol-red: #ef4444;
+  --kol-amber: #f59e0b;
+  --kol-cyan: #06b6d4;
+  --kol-surface: #161b22;
+  --kol-border: #21262d;
+  --kol-muted: #484f58;
+  --kol-text: #c9d1d9;
+}
+
+/* Custom scrollbar */
+.kol-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.kol-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.kol-scroll::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 2px;
+}
+.kol-scroll::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* Side panel slide */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+.slide-in-right {
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Leaderboard row hover */
+.lb-row {
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.lb-row:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+/* PNL bar shimmer */
+@keyframes pnlShimmer {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Pfp ring pulse for top 10 */
+@keyframes ringPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); }
+}
+.pfp-top10 {
+  animation: ringPulse 3s ease-in-out infinite;
+}
+
+/* Social link hover */
+.social-link {
+  transition: color 150ms ease, background 150ms ease;
+}
+.social-link:hover {
+  color: #e2e8f0 !important;
+  background: rgba(255,255,255,0.08) !important;
+}
+
+/* Stagger fade in for panel content */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fadeUp 0.3s ease forwards;
+}
+.fade-up-1 { animation-delay: 0.04s; opacity: 0; }
+.fade-up-2 { animation-delay: 0.08s; opacity: 0; }
+.fade-up-3 { animation-delay: 0.12s; opacity: 0; }
+.fade-up-4 { animation-delay: 0.16s; opacity: 0; }
