@@ -88,7 +88,7 @@ export default function CityScene() {
   const [panelKol, setPanelKol] = useState<KOL | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isRaining, setIsRaining] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const [lbOpen, setLbOpen] = useState(true);
   const [lbPage, setLbPage] = useState(0);
   const [lbSort, setLbSort] = useState<"profit" | "volume">("profit");
@@ -149,10 +149,11 @@ export default function CityScene() {
               <img src="/logo.svg" alt="KOL City" style={{ height: 36 }} />
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
-                  <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#cbd5e1", letterSpacing: "0.01em" }}>
-                    CA: TBD
-                  </span>
-                  <button onClick={() => navigator.clipboard.writeText("TBD").catch(() => {})}
+                  <a href="https://pump.fun/coin/5DtbiNQ8eYh3knBLLA5fKP5gZuvTNw9n7yHeGnx7pump" target="_blank" rel="noopener"
+                    style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#cbd5e1", letterSpacing: "0.01em", textDecoration: "none" }}>
+                    CA: 5DtbiNQ...x7pump
+                  </a>
+                  <button onClick={() => navigator.clipboard.writeText("5DtbiNQ8eYh3knBLLA5fKP5gZuvTNw9n7yHeGnx7pump").catch(() => {})}
                     style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: 0, lineHeight: 1 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
@@ -183,6 +184,15 @@ export default function CityScene() {
                   border: `1px solid ${soundEnabled ? "rgba(51,65,85,0.6)" : "rgba(51,65,85,0.6)"}`,
                   borderRadius: 6, padding: "3px 8px", fontSize: 11, cursor: "pointer",
                 }}>{soundEnabled ? "\uD83D\uDD0A" : "\uD83D\uDD07"}</button>
+              <a href="https://x.com/KOL_City" target="_blank" rel="noopener"
+                style={{
+                  background: "rgba(15,23,42,0.6)", color: "#cbd5e1",
+                  border: "1px solid rgba(51,65,85,0.6)",
+                  borderRadius: 6, padding: "3px 8px", fontSize: 11, cursor: "pointer",
+                  textDecoration: "none", display: "inline-flex", alignItems: "center",
+                }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
             </div>
           </div>
 

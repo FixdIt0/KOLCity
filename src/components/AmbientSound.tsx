@@ -11,8 +11,17 @@ export default function AmbientSound({ enabled }: { enabled: boolean }) {
       a.volume = 0.4;
       audioRef.current = a;
     }
-    if (enabled) audioRef.current.play().catch(() => {});
-    else audioRef.current.pause();
+    const a = audioRef.current;
+    if (enabled) {
+      const tryPlay = () => a.play().catch(() => {});
+      tryPlay();
+      // Browsers block autoplay — retry on first user interaction
+      const unlock = () => { tryPlay(); document.removeEventListener("click", unlock); document.removeEventListener("keydown", unlock); };
+      document.addEventListener("click", unlock, { once: true });
+      document.addEventListener("keydown", unlock, { once: true });
+    } else {
+      a.pause();
+    }
     return () => { audioRef.current?.pause(); };
   }, [enabled]);
 
